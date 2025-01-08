@@ -1,0 +1,17 @@
+version: '3.9'
+
+services:
+  postgres:
+    image: postgres:latest
+    container_name: postgres_container
+    ports:
+      - "5432:5432"  # Проброс порта хоста 5432 на контейнер
+    environment:
+      POSTGRES_USER: postgres  # Имя пользователя
+      POSTGRES_PASSWORD: postgres  # Пароль
+      POSTGRES_DB: postgres  # Имя базы данных
+    volumes:
+      - postgres_data:/var/lib/postgresql/data  # Сохранение данных на хосте
+
+volumes:
+  postgres_data:
