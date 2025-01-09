@@ -1,0 +1,9 @@
+[project]
+name = "python-asyncio"
+version = "0.1.0"
+description = "Study asyncio"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "aiohttp>=3.11.11",
+]
