@@ -1,0 +1,42 @@
+from threading import Lock
+
+class IntListThreadsafe:
+    def __init__(self, wrapped_list: list[int]):
+        self._lock = Lock()
+        self._inner_list = wrapped_list  # Разделяемый ресурс
+
+    def indices_of(self, to_find: int) -> list[int]:
+        with self._lock:
+            enumerator = enumerate(self._inner_list)
+            return [index for index, value in enumerator if value == to_find]
+
+    def find_and_replace(self, to_replace: int, replace_with: int) -> None:
+        with self._lock:
+            indices = self.indices_of(to_replace)
+            for index in indices:
+                self._inner_list[index] = replace_with
+ 
+"""
+Если класс с методом А, который захватывает блокировку, и методов B, который захватывает блокировку и вызывает метод A, то, 
+то вероятно нужна реентабельная блокировка (RLock).
+
+Проблема с обычным Lock:
+- Когда find_and_replace получает блокировку
+- Затем вызывает indices_of, который пытается получить ту же блокировку
+
+Происходит deadlock (взаимная блокировка), так как:
+- Поток уже владеет блокировкой
+- Пытается получить её снова
+- Lock не позволяет повторное получение блокировки тем же потоком 1
+
+Почему нужен RLock:
+RLock нужен здесь потому что:
+
+- Позволяет одному и тому же потоку получить блокировку несколько раз
+- Ведёт учёт количества получений блокировки
+- Требует такое же количество освобождений блокировки
+- Предотвращает deadlock при вложенных вызовах 
+"""
+
+threadsafe_list = IntListThreadsafe([1, 2, 1, 2, 1])
+threadsafe_list.find_and_replace(1, 2)
